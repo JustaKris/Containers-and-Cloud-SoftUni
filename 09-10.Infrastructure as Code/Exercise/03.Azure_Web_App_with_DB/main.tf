@@ -18,12 +18,12 @@ resource "random_integer" "ri" {
 }
 
 resource "azurerm_resource_group" "arg" {
-  name     = "TaskBoardRG${random_integer.ri.result}"
-  location = "West Europe"
+  name     = "${var.resource_group_name}-${random_integer.ri.result}"
+  location = var.resource_group_location
 }
 
 resource "azurerm_service_plan" "asp" {
-  name                = "task-board-plan-${random_integer.ri.result}"
+  name                = "${var.app_service_plan_name}-${random_integer.ri.result}"
   resource_group_name = azurerm_resource_group.arg.name
   location            = azurerm_resource_group.arg.location
   os_type             = "Linux"
@@ -31,7 +31,7 @@ resource "azurerm_service_plan" "asp" {
 }
 
 resource "azurerm_linux_web_app" "alwa" {
-  name                = "task-board-${random_integer.ri.result}"
+  name                = "${var.app_service_name}-${random_integer.ri.result}"
   resource_group_name = azurerm_resource_group.arg.name
   location            = azurerm_service_plan.asp.location
   service_plan_id     = azurerm_service_plan.asp.id
@@ -51,16 +51,16 @@ resource "azurerm_linux_web_app" "alwa" {
 }
 
 resource "azurerm_mssql_server" "mssql_server" {
-  name                         = "task-board-sql-${random_integer.ri.result}"
+  name                         = "${var.sql_server_name}-${random_integer.ri.result}"
   resource_group_name          = azurerm_resource_group.arg.name
   location                     = azurerm_resource_group.arg.location
   version                      = "12.0"
-  administrator_login          = "4dm1n157r470r"
-  administrator_login_password = "4-v3ry-53cr37-p455w0rd"
+  administrator_login          = var.sql_admin_login
+  administrator_login_password = var.sql_admin_password
 }
 
 resource "azurerm_mssql_database" "mssql_db" {
-  name           = "TaskBoardDB${random_integer.ri.result}"
+  name           = "${var.sql_database_name}${random_integer.ri.result}"
   server_id      = azurerm_mssql_server.mssql_server.id
   collation      = "SQL_Latin1_General_CP1_CI_AS"
   license_type   = "LicenseIncluded"
@@ -70,7 +70,7 @@ resource "azurerm_mssql_database" "mssql_db" {
 }
 
 resource "azurerm_mssql_firewall_rule" "firewall" {
-  name             = "FirewallRule1"
+  name             = var.firewall_rule_name
   server_id        = azurerm_mssql_server.mssql_server.id
   start_ip_address = "0.0.0.0"
   end_ip_address   = "0.0.0.0"
@@ -78,7 +78,7 @@ resource "azurerm_mssql_firewall_rule" "firewall" {
 
 resource "azurerm_app_service_source_control" "webapp_source_control" {
   app_id                 = azurerm_linux_web_app.alwa.id
-  repo_url               = "https://github.com/JustaKris/TaskBoard-App-v2-SoftUni"
+  repo_url               = var.repo_URL
   branch                 = "main"
   use_manual_integration = true
 }

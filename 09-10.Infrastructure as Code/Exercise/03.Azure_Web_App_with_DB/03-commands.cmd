@@ -6,8 +6,8 @@ terraform fmt
 terraform validate
 
 ::Review what the file is going to do and then execute
-terraform plan
-terraform apply
+terraform plan -var-file=values.tfvars
+terraform apply -var-file=values.tfvars
 
 ::Kill everything
-terraform destroy
+terraform destroy -var-file=values.tfvars
