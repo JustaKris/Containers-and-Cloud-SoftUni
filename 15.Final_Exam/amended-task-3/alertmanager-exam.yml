@@ -1,0 +1,22 @@
+# Alertmanager route configuration
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 5m
+  repeat_interval: 1h
+  resolve_timeout: 1m
+  receiver: 'web.hook'
+
+# Configuration for alert receivers
+receivers:
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'https://webhook.site/bb60d3c8-c9ad-4972-a39e-1ac1a29b50ef'
+
+# Inhibition rules to suppress certain alerts based on conditions    
+inhibit_rules:
+  - source_match:
+      severity: 'critical'  # Source alert severity
+    target_match:
+      severity: 'warning'  # Target alert severity
+    equal: ['alertname', 'dev', 'instance']  # Conditions for inhibiting alerts

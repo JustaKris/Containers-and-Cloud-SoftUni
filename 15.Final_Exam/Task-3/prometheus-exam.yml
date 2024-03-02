@@ -1,0 +1,32 @@
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s
+
+# Load external rule files for alerting
+rule_files:
+  - alert-rules-exam.yml
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+      - targets:
+        - localhost:9093
+
+# Configure scrape jobs for Prometheus
+scrape_configs:
+  - job_name: "blackbox"
+    metrics_path: /probe
+
+    static_configs:
+      - targets:
+        - https://softuni-url-shortener-app-service.azurewebsites.net
+
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:9115  # Replacement for the target address
+      

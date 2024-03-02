@@ -1,0 +1,38 @@
+version: "3.8"
+services:
+    mongodb:
+        networks:
+            - shopping-list
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=max
+            - MONGO_INITDB_ROOT_PASSWORD=secret
+        volumes:
+            - data:/data/db
+        image: mongo
+    backend:
+        build:
+            context: ./backend
+        networks:
+            - shopping-list
+        ports:
+            - 80:80
+        volumes:
+            - logs:/logs
+            - node_modules:/node_modules
+        image: justakris/shopping-list-backend
+    frontend:
+        build:
+            context: ./frontend
+        networks:
+            - shopping-list
+        ports:
+            - 3000:3000
+        volumes:
+            - .\frontend\src:/src
+        image: justakris/shopping-list-frontend
+networks:
+    shopping-list:
+volumes:
+    data:
+    logs:
+    node_modules:
